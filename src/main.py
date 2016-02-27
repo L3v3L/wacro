@@ -67,6 +67,49 @@ def fixSelections(body, iteratorArray ):
     #TODO check if overlapping
     return iteratorArray
 
+def selectAllCurrentLine(body,iteratorArray):
+    """Selects all of the current line"""
+    logging.debug("start selectAllCurrentLine")
+
+    for i in iteratorArray:
+        flag = 0
+        offset = 0
+        while(flag == 0):
+            selchar = body[i[0] - offset]
+            #check if new line
+            if(selchar == '\n'):
+                i[0] = i[0] - offset
+                break
+            #check if start of document
+            elif((i[0] - offset) == 0):
+                i[0] = 0
+                break
+            
+            offset+=1
+
+        flag = 0
+        offset = 0
+        while(flag == 0):
+            selchar = body[i[1] + offset]
+            #check if new line
+            if(selchar == '\n'):
+                i[1] = i[1] + offset
+                break
+            #check if start of document
+            elif((i[1] + offset) == (len(body)-1)):
+                i[1] = i[1] + offset + 1
+                break
+            
+            offset+=1
+
+    return iteratorArray
+
+def printSelections(body,iteratorArray):
+    """prints the current contents of iteratorArray"""
+    logging.debug("start printSelections")
+    for i in iteratorArray:
+        print body[i[0]:i[1]]
+        
 def findInsideSelection(selector, body, iteratorArray):
     """finding inside a selection"""
     logging.debug("start findInsideSelection")
@@ -105,7 +148,7 @@ def runCommands(commands,inputText):
     """running a commands"""
     logging.debug("start runCommands")
     
-    print "Text to be Wacrod: " + inputText
+    #print "Text to be Wacrod: " + inputText
 
     #remove casing
     commands = commands[1:-1]
@@ -136,12 +179,16 @@ def runCommands(commands,inputText):
             newiteratorArray = fixSelections(inputText, newiteratorArray)
         if fun == "fi" or fun == "inside":
             newiteratorArray = findInsideSelection(para, inputText, newiteratorArray)
+        if fun == "sl" or fun == "line":
+            newiteratorArray = selectAllCurrentLine(inputText, newiteratorArray)
+        if fun == "ps" or fun == "print_selection":
+            printSelections(inputText, newiteratorArray)
 
 def loadInputFile(path):
     """load input file"""
     logging.debug("start loadInputFile")
     with open(path, 'r') as myfile:
-        data=myfile.read().replace('\n', '')
+        data=myfile.read()
     return data
 
 def loadCommandFile(path):
