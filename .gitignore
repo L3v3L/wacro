@@ -67,3 +67,4 @@ log.txt
 #Emacs files
 \#*#
 .#*
+*.*~
