@@ -67,7 +67,7 @@ def fixSelections(body, iteratorArray ):
     #TODO check if overlapping
     return iteratorArray
 
-def findInsideSelection(iteratorArray, body, selector):
+def findInsideSelection(selector, body, iteratorArray):
     """finding inside a selection"""
     logging.debug("start findInsideSelection")
     newiteratorArray = []
@@ -82,37 +82,107 @@ def tests():
     logging.debug("start tests")
     #Testing Vars
     original = "this is a test text that will serve to test this code out on text operations"
-    selector = "text"
-    xselector = "ex"
-    replacer = "cena"
     
+    commandTests =[]
+    #find and replace
+    commandTests.append("[f=text,fi=ex,r=cena]")
+
+    #Error Handling
+    commandTests.append("")
+    commandTests.append("[")
+    commandTests.append("[]")
+    commandTests.append("[,,,]")
+    commandTests.append("salkjdh")
+    commandTests.append("[ss]")
+    commandTests.append("[f=text,ss,r=cena]")
+    commandTests.append("[f=,fi=,r=a]")
     
-    #select all occurences of selector in original
-    findResult = find(selector, original)
-    #inside each selection, now select all occurences of xselector
-    findResult = findInsideSelection(findResult, original, xselector)
-    #replace all selections with replacer
-    replaceResult =  replace(replacer,findResult,original)
-    logging.info(replaceResult)
+    for test in commandTests:
+        runCommands(test,original)
     return
 
-# Gather our code in a main() function
+def runCommands(commands,inputText):
+    """running a commands"""
+    logging.debug("start runCommands")
+    
+    print "Text to be Wacrod: " + inputText
+
+    #remove casing
+    commands = commands[1:-1]
+
+    #split commands
+    commandArray = commands.split(",")
+
+    #run commands
+    newiteratorArray = []
+    for c in commandArray:
+        cSplit = c.split("=")
+        if len(cSplit) == 2:
+            para = cSplit[1]
+        fun = cSplit[0]
+        if fun == "f" or fun=="find":
+            newiteratorArray = find(para,inputText)
+        if fun == "r" or fun == "replace":
+            print replace(para,newiteratorArray,inputText)
+        if fun == "ss" or fun == "start":
+            newiteratorArray = selectionAtStart(newiteratorArray)
+        if fun == "se" or fun == "end":
+            newiteratorArray = selectionAtEnd(newiteratorArray)
+        if fun == "ms" or fun == "move":
+            newiteratorArray = moveSelection(int(para),newiteratorArray)
+        if fun == "es" or fun == "expand":
+            newiteratorArray = expandSelection(int(para),newiteratorArray)
+        if fun == "fs" or fun == "fix":
+            newiteratorArray = fixSelections(inputText, newiteratorArray)
+        if fun == "fi" or fun == "inside":
+            newiteratorArray = findInsideSelection(para, inputText, newiteratorArray)
+
+def loadInputFile(path):
+    """load input file"""
+    logging.debug("start loadInputFile")
+    with open(path, 'r') as myfile:
+        data=myfile.read().replace('\n', '')
+    return data
+
+def loadCommandFile(path):
+    """load commands from file"""
+    logging.debug("start loadCommands")
+    with open(path, 'r') as myfile:
+        data=myfile.read().replace('\n', '')
+    return data
+
 def main(args, loglevel):
     """main function"""
     logging.debug("start main")
-    logging.info('wacro')
 
     #run tests
     if args.test:
         tests()
         return
+    
+    commands = ""
+    inputText = ""
+
+    if args.inputfile:
+        inputText = loadInputFile(args.inputfile)
+    if args.input:
+        inputText = args.input
+    if args.commandsfile:
+        commands = loadCommandFile(args.commandsfile)
+    if args.commands:
+        commands = args.commands
+
+    if commands and inputText:
+        runCommands(commands,inputText)
+    else:
+        print "missing input text and/or commands"
 
 if (__name__ == '__main__'):
     #if len(sys.argv) < 2:
     #    sys.argv.append("-v")
 
-    parser = argparse.ArgumentParser( 
-                                    description = "String macro operations")
+    parser = argparse.ArgumentParser( description = "Wacro, String macro operations")
+    
     parser.add_argument(
         "-v",
         "--verbose",
@@ -121,16 +191,28 @@ if (__name__ == '__main__'):
         action="store_true")
 
     parser.add_argument(
-        "-l",
-        "--load",
+        "-c",
+        "--commands",
         type=str,
-        help ="load commands from file")
+        help ="commands string, syntax: [f=hello,r=Doom]")
 
     parser.add_argument(
         "-i",
         "--input",
         type=str,
-        help ="load text from file")
+        help ="input string")
+
+    parser.add_argument(
+        "-cf",
+        "--commandsfile",
+        type=str,
+        help ="commands file, syntax: [f=hello,r=Doom]")
+
+    parser.add_argument(
+        "-if",
+        "--inputfile",
+        type=str,
+        help ="input file")
     
     parser.add_argument(
         "-o",
@@ -139,6 +221,7 @@ if (__name__ == '__main__'):
         help ="output results to file")
 
     parser.add_argument(
+        "-l",
         "--log",
         help ="logs to file",
         default = False,
@@ -164,5 +247,4 @@ if (__name__ == '__main__'):
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=loglevel)
 
-    main(args, loglevel)
-    
+    main(args, loglevel) 
