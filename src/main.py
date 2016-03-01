@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys, argparse, logging, re
 from StringOperations import *
+from CmdOptions import *
 
 class bcolors:
     HEADER = '\033[95m'
@@ -103,6 +104,21 @@ def runCommands(commands,inputText):
             printInputTextWithSelections(inputText, newiteratorArray)
     return inputText
 
+def parseCommandInputs(commandString):
+    """Parses a command string into an wacro command array"""
+    logging.debug("start loadInputFile")
+    #remove capsulating quotes
+    if commandString[0] == "\"" or commandString[0] == "\'" :
+        commandString = commandString[1:]
+    if commandString[-1:] == "\"" or commandString[1] == "\'" :
+        commandString = commandString[:-1]
+
+    commandArray = []
+    #find how many command strings exist
+    tc = ""
+    if commandString[0] == "[" and commandString[-1:] == "]":
+        tc = commandString[1:-1]     
+    return tc
 
 def loadInputFile(path):
     """load input file"""
@@ -157,65 +173,7 @@ if (__name__ == '__main__'):
     #if len(sys.argv) < 2:
     #    sys.argv.append("-v")
 
-    parser = argparse.ArgumentParser( description = "Wacro, String macro operations")
-    
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        help ="increase output verbosity",
-        default = False,
-        action="store_true")
-
-    parser.add_argument(
-        "-c",
-        "--commands",
-        type=str,
-        help ="commands string, syntax: [f=hello,r=Doom]")
-
-    parser.add_argument(
-        "-i",
-        "--input",
-        type=str,
-        help ="input string")
-
-    parser.add_argument(
-        "-cf",
-        "--commandsfile",
-        type=str,
-        help ="commands file, syntax: [f=hello,r=Doom]")
-
-    parser.add_argument(
-        "-if",
-        "--inputfile",
-        type=str,
-        help ="input file")
-    
-    parser.add_argument(
-        "-o",
-        "--output",
-        type=str,
-        help ="output results to file")
-
-    parser.add_argument(
-        "-l",
-        "--log",
-        help ="logs to file",
-        default = False,
-        action="store_true")
-
-    parser.add_argument(
-        "--test",
-        help ="runs tests",
-        default=False,
-        action="store_true")
-
-    parser.add_argument(
-        "-t",
-        "--terminal",
-        help ="starts wacro terminal",
-        default=False,
-        action="store_true")
-
+    parser = createArgParser()
 
     args = parser.parse_args()
   
