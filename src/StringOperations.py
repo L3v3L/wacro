@@ -112,3 +112,27 @@ def findInsideSelection(selector, body, iteratorArray):
         for j in findResult:
             newiteratorArray.append([j[0]+i[0],j[1]+i[0]])
     return newiteratorArray
+
+def seekForward(selector, body, iteratorArray):
+    """seeks forward for the next occurence of an input"""
+    logging.debug("start seekForward")
+    newiteratorArray = []
+
+    for i in iteratorArray:
+        findResult = find(selector,body[i[1]:])
+        if(findResult):
+            newiteratorArray.append([findResult[0][0]+i[1],findResult[0][1]+i[1]])
+       
+    return newiteratorArray
+
+def seekBack(selector, body, iteratorArray):
+    """seeks back for the next occurence of an input"""
+    logging.debug("start seekBack")
+    newiteratorArray = []
+
+    for i in iteratorArray:
+        findResult = find(selector,body[:i[0]])
+        if(findResult):
+            newiteratorArray.append([findResult[-1][0],findResult[-1][1]])
+
+    return newiteratorArray

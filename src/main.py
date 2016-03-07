@@ -100,8 +100,13 @@ def runCommands(commands,inputText):
             newiteratorArray = selectAllCurrentLine(inputText, newiteratorArray)
         if fun == "ps" or fun == "print_selection":
             printSelections(inputText, newiteratorArray)
-        if fun == "p" or fun == "print ":
+        if fun == "p" or fun == "print":
             printInputTextWithSelections(inputText, newiteratorArray)
+        if fun == "sf" or fun == "forward":
+            newiteratorArray = seekForward(para, inputText, newiteratorArray)
+        if fun == "sb" or fun == "back":
+            newiteratorArray = seekBack(para, inputText, newiteratorArray)
+            
     return inputText
 
 def parseCommandInputs(commandString):
@@ -188,4 +193,4 @@ if (__name__ == '__main__'):
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=loglevel)
 
-    main(args, loglevel) 
+    main(args, loglevel)
